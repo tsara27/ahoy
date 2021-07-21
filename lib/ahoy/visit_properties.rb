@@ -7,9 +7,9 @@ module Ahoy
     attr_reader :request, :params, :referrer, :landing_page
 
     def initialize(request, api:)
-      @request = request
-      @params = request.params
-      @referrer = api ? params["referrer"] : request.referer
+      @request      = request
+      @params       = request.params
+      @referrer     = params["referrer"]
       @landing_page = api ? params["landing_page"] : request.original_url
     end
 
@@ -37,9 +37,8 @@ module Ahoy
     end
 
     def traffic_properties
-      uri = URI.parse(referrer) rescue nil
       {
-        referring_domain: uri.try(:host).try(:first, 255)
+        referring_domain: params["referring_domain"]
       }
     end
 
@@ -57,9 +56,9 @@ module Ahoy
           end
 
         {
-          browser: client.name,
-          os: client.os_name,
-          device_type: device_type
+          browser: client.name.present? ? client.name : params["browser"],
+          os: client.os_name.present? ? client.os_name : params["os_name"],
+          device_type: device_type.present? ? device_type : params["device_type"]
         }
       else
         raise "Add browser to your Gemfile to use legacy user agent parsing" unless defined?(Browser)
@@ -86,11 +85,11 @@ module Ahoy
             "Desktop"
           end
 
-        {
-          browser: agent.name,
-          os: agent.os.name,
-          device_type: device_type
-        }
+          {
+            browser: agent.name.present? ? agent.name : params["browser"],
+            os: agent.os_name.present? ? agent.os_name : params["os_name"],
+            device_type: device_type.present? ? device_type : params["device_type"]
+          }
       end
     end
 
