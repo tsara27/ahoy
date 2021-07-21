@@ -56,6 +56,8 @@ module Ahoy
             if Ahoy.user_agent_parser == :device_detector
               detector = DeviceDetector.new(request.user_agent)
               if Ahoy.bot_detection_version == 2
+                return false if Ahoy.api_only.eql? true && !detector.bot?
+
                 detector.bot? || (detector.device_type.nil? && detector.os_name.nil?)
               else
                 detector.bot?
