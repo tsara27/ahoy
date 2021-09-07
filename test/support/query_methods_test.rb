@@ -100,6 +100,7 @@ module QueryMethodsTest
     create_event value: false
 
     expected = {true => 2, false => 1}
+    expected.transform_keys! { |k| k ? 1 : 0 } if sqlite?
     expected.transform_keys!(&:to_s) if mysql? || mariadb? || hstore?
 
     assert_equal expected, group_events
@@ -133,6 +134,29 @@ module QueryMethodsTest
     assert_equal expected, model.group_prop([:value, :other]).count
   end
 
+  def test_where_event
+    model.create!(name: "Test 1", properties: {value: 1})
+    model.create!(name: "Test 1", properties: {value: 2})
+    model.create!(name: "Test 2", properties: {value: 1})
+    assert_equal 2, model.where_event("Test 1").count
+    assert_equal 1, model.where_event("Test 1", {value: 1}).count
+  end
+
+  def test_scopes
+    model.create!(name: "Test 1", properties: {value: "hello"})
+    model.create!(name: "Test 1", properties: {value: "world"})
+    model.create!(name: "Test 2", properties: {value: "hello"})
+
+    assert_equal 2, model.where_props(value: "hello").count
+    assert_equal 1, model.where(name: "Test 1").where_props(value: "hello").count
+    assert_equal 1, model.where_props(value: "hello").where(name: "Test 1").count
+
+    if group_supported?
+      assert_equal({"hello" => 1, "world" => 1}, model.where(name: "Test 1").group_prop(:value).count)
+      assert_equal({"hello" => 1, "world" => 1}, model.where_event("Test 1").group_prop(:value).count)
+    end
+  end
+
   def create_event(properties)
     model.create(properties: properties)
   end
@@ -143,6 +167,10 @@ module QueryMethodsTest
 
   def group_events
     model.group_prop(:value).count
+  end
+
+  def sqlite?
+    self.class.name =~ /sqlite/i
   end
 
   def mysql?

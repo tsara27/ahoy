@@ -6,6 +6,8 @@ module Ahoy
       location =
         begin
           Geocoder.search(ip).first
+        rescue NameError
+          raise "Add the geocoder gem to your Gemfile to use geocoding"
         rescue => e
           Ahoy.log "Geocode error: #{e.class.name}: #{e.message}"
           nil

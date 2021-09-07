@@ -1,6 +1,21 @@
-## 3.2.1 (unreleased)
+## 4.0.1 (2021-08-18)
+
+- Added support for `where_event`, `where_props`, and `where_group` for SQLite
+- Fixed results with `where_event` for MySQL, MariaDB, and Postgres `hstore`
+- Fixed results with `where_props` and `where_group` when used with other scopes for MySQL, MariaDB, and Postgres `hstore`
+
+## 4.0.0 (2021-08-14)
+
+- Disabled geocoding by default (this was already the case for new installations with 3.2.0+)
+- Made the `geocoder` gem an optional dependency
+- Updated Ahoy.js to 0.4.0
+- Updated API to return 400 status code when missing required parameters
+- Dropped support for Ruby < 2.6 and Rails < 5.2
+
+## 3.3.0 (2021-08-13)
 
 - Added `country_code` to geocoding
+- Updated Ahoy.js to 0.3.9
 - Fixed install generator for MariaDB
 
 ## 3.2.0 (2021-03-01)
